@@ -4,8 +4,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Zoo {
     private List<ZooAnimal> animals = new ArrayList<>();
@@ -36,30 +38,45 @@ public class Zoo {
     }
 
     public ZooAnimal getHeaviestAnimalInTheZoo() {
-        return null;
+        return animals.stream()
+                .max(Comparator.comparing(ZooAnimal::getWeight))
+                .orElseThrow(() -> new IllegalStateException("no animal"));
     }
 
-    public int countWeights() {
-        return 0;
+    public long countWeights() {
+        return animals.stream()
+                .mapToLong(ZooAnimal::getWeight)
+                .peek(System.out::println)
+                .sum();
     }
 
     public ZooAnimal findExactAnimal(ZooAnimal za) {
-        return null;
+        return animals.stream()
+                .filter(animal -> animal.equals(za))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("There is no such animal in the zoo!"));
     }
 
     public ZooAnimal findExactAnimalByName(String s) {
-        return null;
+        return animals.stream()
+                .filter(animal -> animal.getName().equals(s))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("There is no such animal in the zoo!"));
     }
 
     public int getNumberOfAnimals() {
-        return 0;
+        return (int) animals.stream()
+                .count();
     }
 
     public List<ZooAnimal> getAnimalsOrderedByName() {
-        return null;
+        return animals.stream()
+                .sorted(Comparator.comparing(ZooAnimal::getName))
+                .collect(Collectors.toList());
     }
 
     public Map<AnimalType, Integer> getAnimalStatistics() {
-        return null;
+        return animals.stream()
+                .collect(Collectors.toMap(ZooAnimal::getType, v -> 1, Integer::sum));
     }
 }
